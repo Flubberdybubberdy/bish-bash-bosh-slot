@@ -1,0 +1,2467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BISH BASH BOSH – Whack-a-Mole</title>
+  <style>
+    :root {
+      --bg: #05070c;
+      --bg-panel: #0b111b;
+      --bg-panel-alt: #101827;
+      --accent: #43ff99;
+      --accent-soft: rgba(67, 255, 153, 0.18);
+      --accent-strong: #63ffb0;
+      --text: #f7f9ff;
+      --muted: #8c9bb8;
+      --danger: #ff5577;
+      --symbol-low: #1a2b4a;
+      --symbol-high: #203b3e;
+      --symbol-scatter: #3b2551;
+      --symbol-win: #ffe087;
+      --border-soft: #1b2538;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.8);
+      --radius-lg: 18px;
+      --radius-pill: 999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      background: radial-gradient(circle at top, #1b2838 0, #05070c 50%, #020308 100%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      padding: 0;
+    }
+
+    .game-shell {
+      width: 100vw;
+      max-width: 1400px;
+      height: 100vh;
+      background: radial-gradient(circle at top left, #141f33, #05070c);
+      border-radius: 0;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      padding: 18px 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-shell::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 10% -10%, rgba(76, 255, 179, 0.18), transparent 60%),
+        radial-gradient(circle at 80% -20%, rgba(0, 230, 255, 0.16), transparent 60%);
+      opacity: 0.4;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* FREE SPINS BANNER – GOLDEN, LOUD */
+
+    .fs-banner {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 6px 22px;
+      border-radius: 999px;
+      border: 1px solid rgba(250, 204, 21, 0.95);
+      background:
+        radial-gradient(circle at 15% -50%, rgba(255, 255, 255, 0.45), transparent 55%),
+        linear-gradient(135deg, #facc15, #f97316);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      color: #1f1303;
+      box-shadow:
+        0 0 22px rgba(250, 204, 21, 0.95),
+        0 0 70px rgba(248, 250, 252, 0.8);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      opacity: 0;
+      transform-origin: center;
+      white-space: nowrap;
+    }
+
+    .fs-banner.visible {
+      opacity: 1;
+    }
+
+    .fs-banner.active {
+      animation: fsPulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes fsPulse {
+      0% {
+        transform: translateX(-50%) scale(1);
+        box-shadow:
+          0 0 20px rgba(250, 204, 21, 0.9),
+          0 0 60px rgba(251, 191, 36, 0.8);
+      }
+      50% {
+        transform: translateX(-50%) scale(1.06);
+        box-shadow:
+          0 0 40px rgba(250, 204, 21, 1),
+          0 0 90px rgba(251, 191, 36, 1);
+      }
+      100% {
+        transform: translateX(-50%) scale(1);
+        box-shadow:
+          0 0 20px rgba(250, 204, 21, 0.9),
+          0 0 60px rgba(251, 191, 36, 0.8);
+      }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .game-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .game-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .game-title {
+      font-size: 24px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: var(--accent-strong);
+    }
+
+    .game-subtitle {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 0.16em;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .game-pill {
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(135deg, rgba(18, 29, 53, 0.96), rgba(8, 13, 25, 0.96));
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .game-pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: radial-gradient(circle, var(--accent) 0, #0f1722 70%);
+      box-shadow: 0 0 10px rgba(67, 255, 153, 0.5);
+    }
+
+    /* SOUND TOGGLE */
+
+    .sound-toggle {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: radial-gradient(circle at top, #101827, #020617);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 16px;
+      box-shadow: 0 0 10px rgba(15, 23, 42, 0.8);
+      transition:
+        border-color 0.12s ease,
+        box-shadow 0.12s ease,
+        transform 0.08s ease,
+        color 0.12s ease;
+    }
+
+    .sound-toggle.on {
+      border-color: var(--accent);
+      color: var(--accent-strong);
+      box-shadow: 0 0 14px rgba(67, 255, 153, 0.5);
+    }
+
+    .sound-toggle:hover {
+      transform: translateY(-1px);
+    }
+
+    /* INFO BUTTON */
+
+    .info-toggle {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: radial-gradient(circle at top, #101827, #020617);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 17px;
+      box-shadow: 0 0 10px rgba(15, 23, 42, 0.8);
+      transition:
+        border-color 0.12s ease,
+        box-shadow 0.12s ease,
+        transform 0.08s ease,
+        color 0.12s ease;
+    }
+
+    .info-toggle:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+      color: var(--accent-strong);
+      box-shadow: 0 0 14px rgba(67, 255, 153, 0.45);
+    }
+
+    .hud {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .hud-block {
+      background: linear-gradient(145deg, var(--bg-panel), var(--bg-panel-alt));
+      border-radius: var(--radius-lg);
+      padding: 8px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .hud-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+    }
+
+    .hud-value {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .hud-value.accent {
+      color: var(--accent-strong);
+    }
+
+    .bet-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bet-number {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .chip {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--muted);
+    }
+
+    .chip span {
+      color: var(--accent-strong);
+    }
+
+    .bet-buttons {
+      display: flex;
+      gap: 6px;
+    }
+
+    .bet-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: radial-gradient(circle at top, #1a2637, #060913);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, border-color 0.12s ease;
+    }
+
+    .bet-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 0 1px rgba(67, 255, 153, 0.25);
+      border-color: var(--accent);
+    }
+
+    .bet-btn:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    /* Reels */
+
+    .reel-wrapper {
+      margin-top: 4px;
+      padding: 8px;
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at top, rgba(32, 50, 70, 0.95), rgba(3, 6, 18, 0.98));
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.8);
+      position: relative;
+      overflow: hidden;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 0;
+    }
+
+    .reel-overlay-top,
+    .reel-overlay-bottom {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 32px;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .reel-overlay-top {
+      top: 0;
+      background: linear-gradient(to bottom, rgba(2, 4, 10, 0.95), transparent);
+    }
+
+    .reel-overlay-bottom {
+      bottom: 0;
+      background: linear-gradient(to top, rgba(2, 4, 10, 0.96), transparent);
+    }
+
+    .reels {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 6px;
+      padding: 4px 4px 8px;
+      z-index: 2;
+      max-height: 100%;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .reel {
+      background: radial-gradient(circle at center, #111827, #050712);
+      border-radius: 16px;
+      padding: 6px 4px;
+      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow: hidden;
+      position: relative;
+      min-height: 0;
+    }
+
+    .reel::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: -40px;
+      width: 130%;
+      height: 80px;
+      transform: translateX(-50%);
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.15), transparent 70%);
+      opacity: 0;
+      transition: opacity 0.18s ease;
+      pointer-events: none;
+    }
+
+    .reel.spinning::before {
+      opacity: 0.42;
+    }
+
+    .symbol {
+      flex: 1;
+      min-height: 0;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-end;
+      font-size: 12px;
+      text-align: center;
+      padding: 4px 4px 6px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.75);
+      position: relative;
+      overflow: hidden;
+      transition:
+        transform 0.14s ease,
+        box-shadow 0.14s ease,
+        border-color 0.14s ease,
+        background 0.14s ease;
+    }
+
+    .symbol::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top center, rgba(255, 255, 255, 0.15), transparent 60%);
+      opacity: 0.7;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    .symbol-code {
+      display: none;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: rgba(234, 241, 255, 0.7);
+      margin-top: 2px;
+    }
+
+    .symbol-name {
+      opacity: 0.25;
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 1px;
+    }
+
+    
+    .symbol {
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.06),
+        0 10px 22px rgba(0,0,0,0.6);
+    }
+
+    .symbol::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(255,255,255,0.25),
+          rgba(255,255,255,0.04) 40%,
+          rgba(0,0,0,0.35)
+        );
+      pointer-events: none;
+    }
+
+    .symbol::after {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border-radius: inherit;
+      box-shadow:
+        inset 0 4px 10px rgba(255,255,255,0.15),
+        inset 0 -6px 14px rgba(0,0,0,0.45);
+      pointer-events: none;
+    }
+.symbol-low {
+      background: linear-gradient(135deg, #3b2f1a, #251714);
+    }
+
+    .symbol-high {
+      background: radial-gradient(circle at top, #14532d, #052e16);
+      border-color: rgba(67, 255, 153, 0.35);
+    }
+
+    .symbol-scatter {
+      background: radial-gradient(circle at top, #4c1d95, #1f102e);
+      border-color: rgba(221, 214, 254, 0.45);
+    }
+
+    .symbol-win {
+      background: radial-gradient(circle at top, #facc15, #92400e);
+      border-color: rgba(250, 204, 21, 0.95);
+      box-shadow: 0 0 20px rgba(250, 204, 21, 0.75);
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    /* Whack-a-mole illustration - full cell cute mode */
+
+    .symbol-art {
+      position: relative;
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      transform: scale(0.9);
+      transform-origin: center bottom;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .mole-hole {
+      position: absolute;
+      bottom: 2%;
+      width: 82%;
+      height: 26%;
+      background: radial-gradient(circle at top, #4b341c, #1f1308);
+      border-radius: 50% / 60%;
+      box-shadow:
+        0 -2px 4px rgba(0, 0, 0, 0.5),
+        inset 0 3px 6px rgba(0, 0, 0, 0.6);
+    }
+
+    .mole-body {
+      position: absolute;
+      bottom: 16%;
+      width: 58%;
+      height: 50%;
+      background: radial-gradient(circle at 30% 20%, #faccaa, #7c3f22 60%);
+      border-radius: 55% 55% 45% 45%;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.7);
+    }
+
+    .mole-eye {
+      position: absolute;
+      width: 10%;
+      height: 16%;
+      background: #f9fafb;
+      border-radius: 999px;
+      top: 22%;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .mole-eye::after {
+      content: "";
+      position: absolute;
+      width: 40%;
+      height: 55%;
+      background: #020617;
+      border-radius: 999px;
+      top: 22%;
+      left: 30%;
+    }
+
+    .mole-eye.left {
+      left: 28%;
+    }
+
+    .mole-eye.right {
+      right: 28%;
+    }
+
+    .mole-nose {
+      position: absolute;
+      width: 24%;
+      height: 18%;
+      background: radial-gradient(circle at 30% 20%, #fecaca, #b91c1c);
+      border-radius: 999px;
+      bottom: 22%;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+    }
+
+    .mole-teeth {
+      position: absolute;
+      width: 22%;
+      height: 14%;
+      background: #f9fafb;
+      border-radius: 0 0 4px 4px;
+      bottom: 14%;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+    }
+
+    .hammer-head {
+      position: absolute;
+      width: 40%;
+      height: 18%;
+      background: linear-gradient(135deg, #e5e7eb, #9ca3af);
+      border-radius: 10px;
+      top: 6%;
+      right: 6%;
+      box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.5),
+        inset 0 -2px 3px rgba(148, 163, 184, 0.7);
+      transform-origin: right bottom;
+      transform: rotate(-25deg);
+    }
+
+    .hammer-handle {
+      position: absolute;
+      width: 8%;
+      height: 44%;
+      background: linear-gradient(180deg, #78350f, #451a03);
+      border-radius: 999px;
+      top: 10%;
+      right: 20%;
+      transform-origin: center bottom;
+      transform: rotate(-20deg);
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+    }
+
+    .symbol[data-symbol="CM"] .mole-body {
+      background: radial-gradient(circle at 30% 20%, #fde68a, #ea580c 60%);
+    }
+
+    .symbol[data-symbol="HM"] .mole-body {
+      background: radial-gradient(circle at 30% 20%, #e5e7eb, #4b5563 60%);
+    }
+
+    .symbol[data-symbol="GG"] .mole-body {
+      background: radial-gradient(circle at 30% 20%, #bfdbfe, #3b82f6 60%);
+    }
+
+    .symbol[data-symbol="GM"] .mole-body {
+      background: radial-gradient(circle at 30% 20%, #fecaca, #f97373 60%);
+    }
+
+    .symbol[data-symbol="KM"] .mole-body {
+      background: radial-gradient(circle at 30% 20%, #fef9c3, #facc15 60%);
+      box-shadow:
+        0 0 10px rgba(250, 204, 21, 0.8),
+        0 0 18px rgba(250, 204, 21, 0.6);
+    }
+
+    .symbol[data-symbol="KM"] .mole-body::before {
+      content: "";
+      position: absolute;
+      top: -18%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 64%;
+      height: 32%;
+      border-radius: 999px;
+      border: 3px solid #facc15;
+      box-shadow:
+        0 0 6px rgba(250, 204, 21, 0.9),
+        inset 0 0 4px rgba(0, 0, 0, 0.7);
+    }
+
+    .symbol[data-symbol="SCAT"] .mole-body {
+      background: radial-gradient(circle at 30% 20%, #ede9fe, #8b5cf6 60%);
+    }
+
+    .symbol[data-symbol="SCAT"] .mole-body::before {
+      content: "";
+      position: absolute;
+      top: -14%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 84%;
+      height: 40%;
+      border-radius: 999px;
+      border: 3px solid #a855f7;
+      box-shadow:
+        0 0 8px rgba(168, 85, 247, 0.9),
+        inset 0 0 4px rgba(0, 0, 0, 0.7);
+    }
+
+    .symbol[data-symbol="10"] .mole-body,
+    .symbol[data-symbol="J"] .mole-body,
+    .symbol[data-symbol="Q"] .mole-body,
+    .symbol[data-symbol="K"] .mole-body,
+    .symbol[data-symbol="A"] .mole-body {
+      background: radial-gradient(circle at 30% 20%, #fed7aa, #ea580c 60%);
+    }
+
+    /* Controls */
+
+    .controls {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .btn {
+      min-width: 96px;
+      padding: 10px 20px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: radial-gradient(circle at top, #182235, #050912);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition:
+        background 0.12s ease,
+        transform 0.08s ease,
+        box-shadow 0.08s ease,
+        border-color 0.12s ease,
+        color 0.08s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #4ade80);
+      color: #020617;
+      box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+      border-color: rgba(15, 118, 110, 0.8);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 26px rgba(74, 222, 128, 0.6);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+    }
+
+    .btn-secondary {
+      background: radial-gradient(circle at top, #101827, #020617);
+    }
+
+    .btn-secondary.toggled {
+      border-color: var(--accent);
+      box-shadow: 0 0 12px rgba(67, 255, 153, 0.4);
+      background: radial-gradient(circle at top, rgba(67, 255, 153, 0.22), #020617);
+      color: var(--accent-strong);
+    }
+
+    .btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-label-sub {
+      font-size: 9px;
+      text-transform: none;
+      letter-spacing: 0;
+      opacity: 0.7;
+    }
+
+    .status-bar {
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(67, 255, 153, 0.8);
+      opacity: 0;
+      transition: opacity 0.12s ease;
+    }
+
+    .dot.on {
+      opacity: 1;
+    }
+
+    .tag {
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: radial-gradient(circle at top, rgba(148, 163, 184, 0.16), transparent);
+    }
+
+    .status-message {
+      min-height: 14px;
+    }
+
+    .status-message.win {
+      color: var(--accent-strong);
+    }
+
+    .status-message.error {
+      color: var(--danger);
+    }
+
+    .help-text {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    /* AUTO MODAL */
+
+    .auto-modal {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .auto-modal.open {
+      display: flex;
+    }
+
+    .auto-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(3px);
+    }
+
+    .auto-modal-panel {
+      position: relative;
+      width: 320px;
+      max-width: 90%;
+      background: linear-gradient(145deg, var(--bg-panel), var(--bg-panel-alt));
+      border-radius: 20px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      padding: 14px 16px 12px;
+      box-shadow: var(--shadow-soft);
+      z-index: 1;
+    }
+
+    .auto-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .auto-modal-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--accent-strong);
+    }
+
+    .auto-close {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: radial-gradient(circle at top, #111827, #020617);
+      color: var(--muted);
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .auto-modal-subtitle {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .auto-option-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .auto-option {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: radial-gradient(circle at top, #020617, #020617);
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 6px 0;
+      cursor: pointer;
+    }
+
+    .auto-option.selected {
+      border-color: var(--accent);
+      color: var(--accent-strong);
+      box-shadow: 0 0 16px rgba(67, 255, 153, 0.4);
+      background: radial-gradient(circle at top, rgba(67, 255, 153, 0.16), #020617);
+    }
+
+    .auto-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    /* INFO MODAL */
+
+    .info-modal {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 12;
+    }
+
+    .info-modal.open {
+      display: flex;
+    }
+
+    .info-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.86);
+      backdrop-filter: blur(3px);
+    }
+
+    .info-modal-panel {
+      position: relative;
+      width: 420px;
+      max-width: 94%;
+      max-height: 82vh;
+      overflow: hidden;
+      background: radial-gradient(circle at top, #020617, #020617 55%, #020617 100%);
+      border-radius: 20px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9);
+      padding: 14px 16px 10px;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .info-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .info-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--accent-strong);
+    }
+
+    .info-close {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: radial-gradient(circle at top, #111827, #020617);
+      color: var(--muted);
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .info-body {
+      margin-top: 4px;
+      padding-top: 4px;
+      border-top: 1px solid rgba(30, 64, 175, 0.4);
+      font-size: 11px;
+      color: var(--muted);
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(148, 163, 184, 0.7) transparent;
+    }
+
+    .info-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: rgba(209, 213, 219, 0.96);
+      margin-bottom: 2px;
+    }
+
+    .info-body p {
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .info-body ul {
+      padding-left: 16px;
+      margin-bottom: 6px;
+    }
+
+    .info-body li {
+      margin-bottom: 3px;
+    }
+
+    .paytable-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 4px;
+      font-size: 10px;
+    }
+
+    .paytable-table th,
+    .paytable-table td {
+      border: 1px solid rgba(55, 65, 81, 0.8);
+      padding: 3px 4px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .paytable-table th:first-child,
+    .paytable-table td:first-child {
+      text-align: left;
+    }
+
+    .paytable-table thead {
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9));
+      color: rgba(226, 232, 240, 0.98);
+    }
+
+    .paytable-table tbody tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.85);
+    }
+
+    .paytable-table tbody tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.6);
+    }
+
+    .info-highlight {
+      color: var(--accent-strong);
+    }
+
+    .info-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 1), transparent);
+    }
+
+    .info-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(74, 222, 128, 0.65);
+    }
+
+    @media (max-width: 900px) {
+      .game-shell {
+        padding: 10px;
+      }
+
+      .hud {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        gap: 8px;
+      }
+
+      .btn {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .fs-banner {
+        top: 4px;
+      }
+    }
+  </style>
+
+<style>
+.symbol[data-symbol="KM"] {
+  background:
+    radial-gradient(circle at 30% 20%, #fff4b8, #facc15 35%, #78350f 80%);
+  box-shadow:
+    0 0 22px rgba(250,204,21,0.8),
+    inset 0 0 18px rgba(255,255,255,0.35);
+}
+
+@keyframes winPulse {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.symbol-win {
+  animation: winPulse 0.45s ease-out;
+}
+
+.symbol-art::before {
+  content: "";
+  position: absolute;
+  inset: 8%;
+  background: radial-gradient(circle, rgba(0,0,0,0.45), transparent 65%);
+  filter: blur(6px);
+  z-index: -1;
+}
+
+@keyframes idleFloat {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+  100% { transform: translateY(0); }
+}
+
+.symbol:not(.symbol-win) {
+  animation: idleFloat 4s ease-in-out infinite;
+}
+</style>
+
+
+<style>
+@keyframes reelSpin {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-120%); }
+}
+
+.reel.spinning .symbol {
+  animation: reelSpin 0.35s linear infinite;
+  filter: blur(1.2px);
+  opacity: 0.85;
+}
+
+.reel.spinning::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.6),
+    transparent 25%,
+    transparent 75%,
+    rgba(0,0,0,0.6)
+  );
+  pointer-events: none;
+}
+</style>
+
+
+<style>
+/* Reel stop cascade polish */
+.reel {
+  transition: transform 0.12s ease-out;
+}
+
+.reel.stopping {
+  transform: translateY(2px);
+}
+
+.reel.stopped {
+  transform: translateY(0);
+}
+</style>
+
+
+<style>
+/* Scatter anticipation */
+.reel.anticipation .symbol {
+  animation-duration: 0.9s;
+  filter: blur(0.6px);
+}
+
+.reel.anticipation::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    inset 0 0 18px rgba(168, 85, 247, 0.65),
+    0 0 18px rgba(168, 85, 247, 0.45);
+  pointer-events: none;
+}
+</style>
+
+
+<style>
+/* Reel blur ramp-down */
+.reel.spinning .symbol {
+  transition: filter 0.2s ease;
+}
+.reel.stopping .symbol {
+  filter: blur(0.3px);
+}
+.reel.stopped .symbol {
+  filter: blur(0);
+}
+
+/* Final reel bounce on big wins */
+@keyframes finalBounce {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+  100% { transform: translateY(0); }
+}
+
+.reel.final-bounce {
+  animation: finalBounce 0.28s ease-out;
+}
+
+/* Winning reel glow rails */
+.reel.win-rail::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 18px;
+  box-shadow:
+    inset 0 0 0 2px rgba(250,204,21,0.9),
+    0 0 22px rgba(250,204,21,0.8);
+  pointer-events: none;
+}
+</style>
+
+
+<style>
+/* Portrait 9:16 cabinet framing */
+@media (orientation: portrait) {
+  .game-shell {
+    max-width: 420px;
+    margin: 0 auto;
+    padding-top: 8px;
+  }
+  .reel-wrapper {
+    flex: 1;
+  }
+}
+
+/* Line win sweep */
+@keyframes lineSweep {
+  from { opacity: 0; transform: scaleX(0); }
+  to   { opacity: 1; transform: scaleX(1); }
+}
+
+.line-sweep {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  border: 2px solid rgba(250,204,21,0.9);
+  animation: lineSweep 0.35s ease-out;
+  pointer-events: none;
+}
+
+/* Big win overlay */
+.bigwin-overlay {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, rgba(0,0,0,0.85), rgba(0,0,0,0.95));
+  z-index: 50;
+}
+
+.bigwin-overlay.show {
+  display: flex;
+}
+
+.bigwin-amount {
+  font-size: 48px;
+  font-weight: 900;
+  color: #facc15;
+  text-shadow: 0 0 30px rgba(250,204,21,0.9);
+}
+</style>
+
+
+<style>
+.symbol-art { display: none; }
+
+.symbol-img {
+  width: 88%;
+  height: auto;
+  pointer-events: none;
+  filter:
+    drop-shadow(0 6px 10px rgba(0,0,0,0.65))
+    drop-shadow(0 0 12px rgba(255,200,80,0.25));
+}
+
+.symbol-win .symbol-img {
+  filter:
+    drop-shadow(0 8px 14px rgba(0,0,0,0.75))
+    drop-shadow(0 0 22px rgba(255,215,100,0.65));
+}
+</style>
+
+</head>
+<body>
+<div class="game-shell">
+  <div id="fs-banner" class="fs-banner">
+    <span id="fs-banner-text">FREE SPINS LEFT</span>
+  </div>
+
+  <header class="game-header">
+    <div class="game-title-block">
+      <div class="game-title">BISH BASH BOSH</div>
+      <div class="game-subtitle">Whack-a-Mole · 5×3 · 10 lines · Free Spins Feature</div>
+    </div>
+    <div class="header-right">
+      <div class="game-pill">
+        <span class="game-pill-dot"></span>
+        <span>Base Game + Free Spins • <strong>Local RNG</strong></span>
+      </div>
+      <button id="info-btn" class="info-toggle" aria-label="Game information">
+        ⓘ
+      </button>
+      <button id="sound-btn" class="sound-toggle" aria-label="Toggle sound">
+        <span id="sound-icon">🔊</span>
+      </button>
+    </div>
+  </header>
+
+  <section class="hud">
+    <div class="hud-block">
+      <div>
+        <div class="hud-label">Balance</div>
+        <div class="hud-value accent" id="balance-value">1,000.00</div>
+      </div>
+      <div class="chip">Mode: <span>Demo</span></div>
+    </div>
+
+    <div class="hud-block">
+      <div>
+        <div class="hud-label">Total Bet</div>
+        <div class="bet-control">
+          <div class="bet-number" id="bet-value">1.00</div>
+        </div>
+      </div>
+      <div class="bet-buttons">
+        <button class="bet-btn" id="bet-dec">–</button>
+        <button class="bet-btn" id="bet-inc">+</button>
+      </div>
+    </div>
+
+    <div class="hud-block">
+      <div>
+        <div class="hud-label">Last Win</div>
+        <div class="hud-value" id="last-win-value">0.00</div>
+      </div>
+      <div class="chip">Lines: <span>10 fixed</span></div>
+    </div>
+  </section>
+
+  <section class="reel-wrapper">
+    <div class="reel-overlay-top"></div>
+    <div id="reels" class="reels"></div>
+    <div class="reel-overlay-bottom"></div>
+  </section>
+
+  <section class="controls">
+    <button id="auto-btn" class="btn btn-secondary">
+      AUTO
+      <span class="btn-label-sub">Select spins</span>
+    </button>
+    <button id="spin-btn" class="btn btn-primary">
+      SPIN
+    </button>
+    <button id="turbo-btn" class="btn btn-secondary">
+      TURBO
+      <span class="btn-label-sub">Fast mode</span>
+    </button>
+  </section>
+
+  <div class="status-bar">
+    <div class="status-left">
+      <div class="tag">3+ Bonus Holes: Free Spins</div>
+      <div class="tag">Hammer collects moles in bonus</div>
+      <div class="tag" id="fs-state-tag">Mode: Base Game</div>
+    </div>
+    <div>
+      <span class="dot" id="auto-dot"></span>
+      <span class="status-message" id="status-message"></span>
+    </div>
+  </div>
+
+  <div class="help-text">
+    Whack the moles to win. Payouts follow the original math profile. Free Spins: bonus moles pay with increasing multipliers.
+  </div>
+
+  <!-- AUTO PLAY MODAL -->
+  <div id="auto-modal" class="auto-modal">
+    <div class="auto-modal-backdrop"></div>
+    <div class="auto-modal-panel">
+      <div class="auto-modal-header">
+        <div class="auto-modal-title">Auto Play</div>
+        <button id="auto-close" class="auto-close">&times;</button>
+      </div>
+      <div class="auto-modal-subtitle">Select number of automatic spins</div>
+      <div class="auto-option-grid">
+        <button class="auto-option" data-spins="10">10</button>
+        <button class="auto-option" data-spins="25">25</button>
+        <button class="auto-option" data-spins="50">50</button>
+        <button class="auto-option" data-spins="100">100</button>
+        <button class="auto-option" data-spins="250">250</button>
+        <button class="auto-option" data-spins="500">500</button>
+        <button class="auto-option" data-spins="750">750</button>
+        <button class="auto-option" data-spins="1000">1000</button>
+      </div>
+      <div class="auto-modal-actions">
+        <button id="auto-start" class="btn btn-primary">Start Auto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFO MODAL -->
+  <div id="info-modal" class="info-modal">
+    <div class="info-modal-backdrop"></div>
+    <div class="info-modal-panel">
+      <div class="info-header">
+        <div>
+          <div class="info-title">How to Play</div>
+          <div class="info-badge" style="margin-top:2px;">
+            <span class="info-badge-dot"></span>
+            <span>Target RTP ~97.99% • 10 Fixed Lines</span>
+          </div>
+        </div>
+        <button id="info-close" class="info-close">&times;</button>
+      </div>
+      <div class="info-body">
+        <div style="margin-bottom:8px;">
+          <div class="info-section-title">Base Game</div>
+          <p>BISH BASH BOSH is a 5×3 whack-a-mole style slot with 10 fixed win lines, paying left to right.</p>
+          <ul>
+            <li>Select your <span class="info-highlight">Total Bet</span> using the – / + buttons.</li>
+            <li>Press <span class="info-highlight">SPIN</span> to play one paid game.</li>
+            <li>All wins are paid as <span class="info-highlight">multiples of your total bet</span>.</li>
+            <li>Only the highest win is paid per line.</li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom:8px;">
+          <div class="info-section-title">Free Spins</div>
+          <p><span class="info-highlight">Bonus Hole</span> symbols (SCATTER) trigger Free Spins:</p>
+          <ul>
+            <li>3 Bonus Holes = 10 Free Spins</li>
+            <li>4 Bonus Holes = 15 Free Spins</li>
+            <li>5 Bonus Holes = 20 Free Spins</li>
+          </ul>
+          <p>During Free Spins, hammer hits collect mole cash values with an increasing multiplier. Collect 4 hammers to level up and add extra Free Spins.</p>
+        </div>
+
+        <div style="margin-bottom:8px;">
+          <div class="info-section-title">Paytable (Line Wins)</div>
+          <p>Pays shown as <span class="info-highlight">x Total Bet</span> for 10-line play:</p>
+          <table class="paytable-table">
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>2</th>
+                <th>3</th>
+                <th>4</th>
+                <th>5</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>King Mole</td>
+                <td>0.5</td>
+                <td>20</td>
+                <td>50</td>
+                <td>250</td>
+              </tr>
+              <tr>
+                <td>Grumpy Mole</td>
+                <td>–</td>
+                <td>5</td>
+                <td>15</td>
+                <td>150</td>
+              </tr>
+              <tr>
+                <td>Helmet Mole</td>
+                <td>–</td>
+                <td>2</td>
+                <td>10</td>
+                <td>75</td>
+              </tr>
+              <tr>
+                <td>Goggles Mole</td>
+                <td>–</td>
+                <td>3</td>
+                <td>10</td>
+                <td>75</td>
+              </tr>
+              <tr>
+                <td>Cheeky Mole</td>
+                <td>–</td>
+                <td>1</td>
+                <td>5</td>
+                <td>25</td>
+              </tr>
+              <tr>
+                <td>Scoreboard (A)</td>
+                <td>–</td>
+                <td>0.5</td>
+                <td>2.5</td>
+                <td>10</td>
+              </tr>
+              <tr>
+                <td>Work Glove (K)</td>
+                <td>–</td>
+                <td>0.5</td>
+                <td>2.5</td>
+                <td>10</td>
+              </tr>
+              <tr>
+                <td>Wooden Board (Q)</td>
+                <td>–</td>
+                <td>0.5</td>
+                <td>2.5</td>
+                <td>10</td>
+              </tr>
+              <tr>
+                <td>Shallow Tunnel (J)</td>
+                <td>–</td>
+                <td>0.5</td>
+                <td>2.5</td>
+                <td>10</td>
+              </tr>
+              <tr>
+                <td>Small Dirt Hole (10)</td>
+                <td>–</td>
+                <td>0.5</td>
+                <td>2.5</td>
+                <td>10</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          <div class="info-section-title">Scatter & Feature</div>
+          <p>Bonus Hole (SCAT) symbols pay as scatters by triggering the Free Spins feature only. Line wins and feature wins are added together.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div id="bigwin-overlay" class="bigwin-overlay">
+  <div id="bigwin-amount" class="bigwin-amount">0.00</div>
+</div>
+
+</div>
+
+<script>
+  const WIN_SCALE = 1.045;
+
+  const REEL_1 = [
+    'A', 'J', '10', 'CM', 'K', 'Q', 'SCAT', 'J', 'A', 'HM',
+    '10', 'K', 'SCAT', 'Q', 'CM', 'A', '10', 'GG', 'K', 'Q',
+    'SCAT', 'J', 'GM', 'A', '10', 'K', 'CM', 'Q', 'SCAT', 'A',
+    'KM', '10', 'K', 'Q', 'J', 'SCAT', 'CM', 'A', 'SCAT', '10',
+  ];
+
+  const REEL_2 = [
+    'K', 'A', 'SCAT', 'Q', '10', 'CM', 'J', 'K', 'HM', 'A',
+    'Q', 'SCAT', '10', 'CM', 'K', 'A', 'GG', 'Q', 'SCAT', '10',
+    'K', 'A', 'GM', 'Q', 'SCAT', 'CM', '10', 'K', 'A', 'Q',
+    'SCAT', 'J', 'KM', '10', 'HM', 'K', 'A', 'SCAT', 'Q', 'CM',
+    '10', 'SCAT', 'J', 'CM',
+  ];
+
+  const REEL_3 = [
+    'J', '10', 'SCAT', 'A', 'K', 'Q', 'CM', 'J', 'HM', 'A',
+    '10', 'K', 'SCAT', 'Q', 'CM', 'A', 'GG', '10', 'K', 'Q',
+    'SCAT', 'J', 'A', 'GM', '10', 'K', 'Q', 'SCAT', 'CM', 'J',
+    'A', '10', 'SCAT', 'Q', 'KM', 'J', 'A', 'CM', '10', 'SCAT',
+    'K', 'Q', 'HM', 'A', 'SCAT', 'CM', '10', 'GG',
+  ];
+
+  const REEL_4 = [
+    'Q', 'A', '10', 'SCAT', 'K', 'CM', 'J', 'Q', 'A', 'HM',
+    '10', 'K', 'SCAT', 'CM', 'A', '10', 'GG', 'K', 'SCAT', 'J',
+    'Q', 'GM', 'A', '10', 'SCAT', 'CM', 'Q', 'J', 'A', 'KM',
+    '10', 'K', 'SCAT', 'Q', 'CM', 'A', 'HM', '10', 'K', 'Q',
+    'SCAT', 'CM', 'J', 'SCAT',
+  ];
+
+  const REEL_5 = [
+    'A', 'K', 'Q', 'SCAT', '10', 'CM', 'J', 'A', 'K', 'HM',
+    'Q', '10', 'SCAT', 'CM', 'A', 'K', 'GG', 'Q', 'SCAT', '10',
+    'J', 'GM', 'A', 'K', 'Q', 'SCAT', 'CM', '10', 'A', 'KM',
+    'K', 'Q', 'SCAT', '10', 'J', 'A', 'CM', 'K', 'SCAT', 'CM',
+  ];
+
+  const REELS = [REEL_1, REEL_2, REEL_3, REEL_4, REEL_5];
+
+  const PAYTABLE = {
+    '10':  { 3: 0.5, 4: 2.5, 5: 10 },
+    'J':   { 3: 0.5, 4: 2.5, 5: 10 },
+    'Q':   { 3: 0.5, 4: 2.5, 5: 10 },
+    'K':   { 3: 0.5, 4: 2.5, 5: 10 },
+    'A':   { 3: 0.5, 4: 2.5, 5: 10 },
+    'CM': { 3: 1, 4: 5, 5: 25 },
+    'HM': { 3: 2, 4: 10, 5: 75 },
+    'GG': { 3: 3, 4: 10, 5: 75 },
+    'GM': { 3: 5, 4: 15, 5: 150 },
+    'KM': { 2: 0.5, 3: 20, 4: 50, 5: 250 },
+  };
+
+  const SYMBOL_INFO = {
+    '10':   { name: 'Small Dirt Hole',    group: 'low'     },
+    'J':    { name: 'Shallow Tunnel',     group: 'low'     },
+    'Q':    { name: 'Wooden Board',       group: 'low'     },
+    'K':    { name: 'Work Glove',         group: 'low'     },
+    'A':    { name: 'Scoreboard',         group: 'low'     },
+    'CM': { name: 'Cheeky Mole',        group: 'high'    },
+    'HM': { name: 'Helmet Mole',        group: 'high'    },
+    'GG': { name: 'Goggles Mole',       group: 'high'    },
+    'GM': { name: 'Grumpy Mole',        group: 'high'    },
+    'KM': { name: 'King Mole',          group: 'high'    },
+    'SCAT': { name: 'Bonus Hole',         group: 'scatter' },
+  };
+
+  const LINES = [
+    [1, 1, 1, 1, 1],
+    [0, 0, 0, 0, 0],
+    [2, 2, 2, 2, 2],
+    [0, 1, 2, 1, 0],
+    [2, 1, 0, 1, 2],
+    [0, 0, 1, 2, 2],
+    [2, 2, 1, 0, 0],
+    [1, 0, 0, 0, 1],
+    [1, 2, 2, 2, 1],
+    [0, 1, 1, 1, 0],
+  ];
+
+  const ROWS = 3;
+  const COLS = 5;
+
+  const MODE_BASE = 'BASE';
+  const MODE_FS = 'FS';
+
+  const LEVEL_MULTIPLIERS = [1, 2, 3, 10];
+  const FISH_VALUES = [0.1, 0.2, 0.3, 0.5, 1.0];
+
+  let freeSpinsLeft = 0;
+  let freeSpinsTotal = 0;
+  let freeSpinsPlayed = 0;
+  let totalFreeSpinsWin = 0;
+  let freeSpinLevel = 1;
+  let freeSpinMultiplier = LEVEL_MULTIPLIERS[0];
+  let fishermenInLevel = 0;
+
+  let mode = MODE_BASE;
+
+  let balance = 1000.00;
+  let bet = 1.00;
+  let lastWin = 0.00;
+  let turbo = false;
+  let spinning = false;
+
+  let autoMode = false;
+  let autoSpinsRemaining = 0;
+  let autoSpinsTotal = 0;
+  let spinRequestedByAuto = false;
+
+  let soundEnabled = true;
+  let audioCtx = null;
+
+  const cellGrid = [];
+  const reelElems = [];
+
+  const balanceEl = document.getElementById('balance-value');
+  const betEl = document.getElementById('bet-value');
+  const lastWinEl = document.getElementById('last-win-value');
+  const statusMessageEl = document.getElementById('status-message');
+  const autoDotEl = document.getElementById('auto-dot');
+  const fsStateTagEl = document.getElementById('fs-state-tag');
+  const fsBannerEl = document.getElementById('fs-banner');
+  const fsBannerTextEl = document.getElementById('fs-banner-text');
+
+  const spinBtn = document.getElementById('spin-btn');
+  const autoBtn = document.getElementById('auto-btn');
+  const turboBtn = document.getElementById('turbo-btn');
+  const betDecBtn = document.getElementById('bet-dec');
+  const betIncBtn = document.getElementById('bet-inc');
+
+  const autoModal = document.getElementById('auto-modal');
+  const autoCloseBtn = document.getElementById('auto-close');
+  const autoStartBtn = document.getElementById('auto-start');
+  const autoOptionButtons = Array.from(document.querySelectorAll('.auto-option'));
+  const autoBackdrop = document.querySelector('.auto-modal-backdrop');
+
+  const soundBtn = document.getElementById('sound-btn');
+  const soundIcon = document.getElementById('sound-icon');
+  const infoBtn = document.getElementById('info-btn');
+  const infoModal = document.getElementById('info-modal');
+  const infoCloseBtn = document.getElementById('info-close');
+  const infoBackdrop = document.querySelector('.info-modal-backdrop');
+
+  let autoSelectedSpins = 0;
+
+  function getAudioCtx() {
+    if (!audioCtx) {
+      const Ctor = window.AudioContext || window.webkitAudioContext;
+      if (Ctor) {
+        audioCtx = new Ctor();
+      }
+    }
+    return audioCtx;
+  }
+
+  function playTone(freq, duration, type = 'square', gain = 0.15) {
+    if (!soundEnabled) return;
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    osc.connect(g);
+    g.connect(ctx.destination);
+    const now = ctx.currentTime;
+    g.gain.setValueAtTime(gain, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + duration);
+    osc.start(now);
+    osc.stop(now + duration);
+  }
+
+  function sSpin()    { playTone(260, 0.10, 'square', 0.14); }
+  function sStop()    { playTone(180, 0.08, 'square', 0.10); }
+  function sWin()     { playTone(880, 0.18, 'triangle', 0.18); }
+  function sFsTrigger(){ playTone(520, 0.20, 'sawtooth', 0.18); }
+function sAnticipation() { playTone(420, 0.35, 'triangle', 0.12); }
+
+  function sFsLevelUp(){ playTone(700, 0.22, 'square', 0.20); }
+  function sClick()   { playTone(540, 0.05, 'square', 0.10); }
+
+  (function initSoundState() {
+    try {
+      const stored = window.localStorage.getItem('bishBashSound');
+      if (stored === 'off') soundEnabled = false;
+    } catch (e) {}
+    updateSoundIcon();
+  })();
+
+  function updateSoundIcon() {
+    soundIcon.textContent = soundEnabled ? '🔊' : '🔇';
+    soundBtn.classList.toggle('on', soundEnabled);
+  }
+
+  soundBtn.addEventListener('click', () => {
+    sClick();
+    soundEnabled = !soundEnabled;
+    try {
+      window.localStorage.setItem('bishBashSound', soundEnabled ? 'on' : 'off');
+    } catch (e) {}
+    updateSoundIcon();
+    const ctx = getAudioCtx();
+    if (soundEnabled && ctx && ctx.state === 'suspended') {
+      ctx.resume();
+    }
+  });
+
+  function formatMoney(value) {
+    return value.toFixed(2);
+  }
+
+  function randomInt(max) {
+    return Math.floor(Math.random() * max);
+  }
+
+  function setStatus(msg, type) {
+    statusMessageEl.textContent = msg || '';
+    statusMessageEl.className = 'status-message' + (type ? ' ' + type : '');
+  }
+
+  function updateFsBanner() {
+    if (!fsBannerEl || !fsBannerTextEl) return;
+
+    if (mode === MODE_FS) {
+      const label = `FREE SPINS LEFT: ${freeSpinsLeft}`;
+      fsBannerTextEl.textContent = label;
+      fsBannerEl.classList.add('visible', 'active');
+    } else {
+      fsBannerTextEl.textContent = 'FREE SPINS LEFT';
+      fsBannerEl.classList.remove('visible', 'active');
+    }
+  }
+
+  function updateHUD() {
+    balanceEl.textContent = formatMoney(balance);
+    betEl.textContent = formatMoney(bet);
+    lastWinEl.textContent = formatMoney(lastWin);
+
+    spinBtn.disabled = spinning || (mode === MODE_BASE && balance < bet);
+    betDecBtn.disabled = spinning || mode === MODE_FS;
+    betIncBtn.disabled = spinning || mode === MODE_FS;
+    autoDotEl.classList.toggle('on', autoMode && mode === MODE_BASE);
+
+    if (fsStateTagEl) {
+      if (mode === MODE_FS) {
+        const nextSpinNumber = Math.min(freeSpinsPlayed + 1, freeSpinsTotal);
+        const label = `Free Spins · Spin ${nextSpinNumber}/${freeSpinsTotal} · Left ${freeSpinsLeft} · Mult x${freeSpinMultiplier} · Moles ${fishermenInLevel}/4`;
+        fsStateTagEl.textContent = label;
+      } else {
+        fsStateTagEl.textContent = 'Mode: Base Game';
+      }
+    }
+
+    updateFsBanner();
+  }
+
+  function clearHighlights() {
+    for (let c = 0; c < COLS; c++) {
+      for (let r = 0; r < ROWS; r++) {
+        const cell = cellGrid[c][r];
+        cell.classList.remove('symbol-win');
+      }
+    }
+  }
+
+  function createReels() {
+    const reelsContainer = document.getElementById('reels');
+
+    for (let col = 0; col < COLS; col++) {
+      const reel = document.createElement('div');
+      reel.className = 'reel';
+      reelElems[col] = reel;
+
+      const colCells = [];
+      for (let row = 0; row < ROWS; row++) {
+        const cell = document.createElement('div');
+        cell.className = 'symbol symbol-low';
+        cell.dataset.col = String(col);
+        cell.dataset.row = String(row);
+
+        const art = document.createElement('div');
+        art.className = 'symbol-art';
+        art.innerHTML = `
+          <div class="mole-hole"></div>
+          <div class="mole-body"></div>
+          <div class="mole-eye left"></div>
+          <div class="mole-eye right"></div>
+          <div class="mole-nose"></div>
+          <div class="mole-teeth"></div>
+          <div class="hammer-head"></div>
+          <div class="hammer-handle"></div>
+        `;
+
+        const nameSpan = document.createElement('div');
+        nameSpan.className = 'symbol-name';
+        nameSpan.textContent = '—';
+
+        const codeSpan = document.createElement('div');
+        codeSpan.className = 'symbol-code';
+        codeSpan.textContent = '--';
+
+        cell.appendChild(art);
+        cell.appendChild(nameSpan);
+        cell.appendChild(codeSpan);
+
+        reel.appendChild(cell);
+        colCells[row] = cell;
+      }
+
+      cellGrid[col] = colCells;
+      reelsContainer.appendChild(reel);
+    }
+  }
+
+  function renderGrid(grid) {
+    for (let col = 0; col < COLS; col++) {
+      for (let row = 0; row < ROWS; row++) {
+        const symCode = grid[col][row];
+        const cell = cellGrid[col][row];
+        const info = SYMBOL_INFO[symCode] || { name: symCode, group: 'low' };
+
+        const codeSpan = cell.querySelector('.symbol-code');
+        const nameSpan = cell.querySelector('.symbol-name');
+
+        codeSpan.textContent = symCode;
+        nameSpan.textContent = info.name;
+        cell.setAttribute('data-symbol', symCode);
+
+        cell.classList.remove('symbol-low', 'symbol-high', 'symbol-scatter', 'symbol-win');
+        cell.classList.add('symbol-' + (info.group || 'low'));
+      }
+    }
+  }
+
+  function evaluateGridLines(grid) {
+    let totalWin = 0;
+
+    for (let lineIndex = 0; lineIndex < LINES.length; lineIndex++) {
+      const pattern = LINES[lineIndex];
+      const firstRow = pattern[0];
+      const firstSymbol = grid[0][firstRow];
+
+      if (!firstSymbol) continue;
+      if (firstSymbol === 'SCAT') continue;
+
+      const pay = PAYTABLE[firstSymbol];
+      if (!pay) continue;
+
+      let length = 1;
+      for (let col = 1; col < COLS; col++) {
+        const row = pattern[col];
+        const symbol = grid[col][row];
+        if (symbol !== firstSymbol || symbol === 'SCAT') break;
+        length++;
+      }
+
+      const payoff = pay[length];
+      if (payoff) {
+        const lineWin = payoff * bet;
+        totalWin += lineWin;
+      }
+    }
+
+    return totalWin;
+  }
+
+  function highlightWinPositions(positions) {
+    const seen = new Set();
+    positions.forEach(pos => {
+      const key = pos.col + ':' + pos.row;
+      if (seen.has(key)) return;
+      seen.add(key);
+      const cell = cellGrid[pos.col][pos.row];
+      cell.classList.add('symbol-win');
+    });
+  }
+
+  function countScatters(grid) {
+    let scatters = 0;
+    for (let c = 0; c < COLS; c++) {
+      for (let r = 0; r < ROWS; r++) {
+        if (grid[c][r] === 'SCAT') scatters++;
+      }
+    }
+    return scatters;
+  }
+
+  function sampleFishermenCount() {
+    const r = Math.random();
+    if (r < 0.95) return 0;
+    if (r < 0.999) return 1;
+    if (r < 0.9995) return 2;
+    return 3;
+  }
+
+  function evaluateFreeSpinExtras(grid) {
+    const fishPositions = [];
+    for (let c = 0; c < COLS; c++) {
+      for (let r = 0; r < ROWS; r++) {
+        if (grid[c][r] === 'CM') {
+          fishPositions.push({ col: c, row: r });
+        }
+      }
+    }
+
+    let totalFishBase = 0;
+    if (fishPositions.length > 0) {
+      for (let i = 0; i < fishPositions.length; i++) {
+        const step = FISH_VALUES[randomInt(FISH_VALUES.length)];
+        totalFishBase += step * bet;
+      }
+    }
+
+    const fishermen = sampleFishermenCount();
+    const collectBase = totalFishBase * fishermen;
+    const collectWin = collectBase * freeSpinMultiplier;
+
+    return {
+      collectWin,
+      fishermen,
+      fishPositions
+    };
+  }
+
+  function applyFishermenProgress(count) {
+    if (count <= 0) return 0;
+    let levelUps = 0;
+    fishermenInLevel += count;
+
+    while (fishermenInLevel >= 4 && freeSpinLevel < LEVEL_MULTIPLIERS.length) {
+      fishermenInLevel -= 4;
+      freeSpinLevel++;
+      freeSpinMultiplier = LEVEL_MULTIPLIERS[freeSpinLevel - 1];
+      freeSpinsLeft += 5;
+      freeSpinsTotal += 5;
+      levelUps++;
+    }
+
+    return levelUps;
+  }
+
+  function performSpin() {
+    const grid = [];
+    for (let col = 0; col < COLS; col++) {
+      const reelStrip = REELS[col];
+      const len = reelStrip.length;
+      const start = randomInt(len);
+
+      const colSymbols = [];
+      for (let row = 0; row < ROWS; row++) {
+        const idx = (start + row) % len;
+        colSymbols[row] = reelStrip[idx];
+      }
+      grid[col] = colSymbols;
+    }
+
+    renderGrid(grid);
+
+    const lineWin = evaluateGridLines(grid);
+    
+    const scatterCount = countScatters(grid);
+
+    // Scatter anticipation: if 2 scatters already, slow last reels
+    if (scatterCount >= 2 && mode === MODE_BASE) {
+      reelElems.forEach((reel, i) => {
+        if (i >= COLS - 2) {
+          reel.classList.add('anticipation'); sAnticipation();
+        }
+      });
+    }
+
+
+    let fsExtras = { collectWin: 0, fishermen: 0, fishPositions: [] };
+    if (mode === MODE_FS) {
+      fsExtras = evaluateFreeSpinExtras(grid);
+    }
+
+    const rawTotalWin = lineWin + fsExtras.collectWin;
+    const scaledTotalWin = rawTotalWin * WIN_SCALE;
+
+    const winningPositions = [];
+
+    for (let lineIndex = 0; lineIndex < LINES.length; lineIndex++) {
+      const pattern = LINES[lineIndex];
+      const firstRow = pattern[0];
+      const firstSymbol = grid[0][firstRow];
+
+      if (!firstSymbol || firstSymbol === 'SCAT') continue;
+      const pay = PAYTABLE[firstSymbol];
+      if (!pay) continue;
+
+      let length = 1;
+      for (let col = 1; col < COLS; col++) {
+        const row = pattern[col];
+        const symbol = grid[col][row];
+        if (symbol !== firstSymbol || symbol === 'SCAT') break;
+        length++;
+      }
+
+      if (pay[length]) {
+        for (let col = 0; col < length; col++) {
+          const row = pattern[col];
+          winningPositions.push({ col, row });
+        }
+      }
+    }
+
+    if (winningPositions.length > 0) {
+      highlightWinPositions(winningPositions);
+      const reelWrap = document.querySelector('.reel-wrapper');
+      const sweep = document.createElement('div');
+      sweep.className = 'line-sweep';
+      reelWrap.appendChild(sweep);
+      setTimeout(() => sweep.remove(), 400);
+
+    }
+    if (mode === MODE_FS && fsExtras.collectWin > 0 && fsExtras.fishPositions.length > 0) {
+      highlightWinPositions(fsExtras.fishPositions);
+    }
+
+    if (scaledTotalWin > 0) {
+      balance += scaledTotalWin;
+    }
+
+    return {
+      grid,
+      lineWin,
+      rawTotalWin,
+      totalWin: scaledTotalWin,
+      scatterCount,
+      fsCollectWin: fsExtras.collectWin * WIN_SCALE,
+      fishermen: fsExtras.fishermen,
+      winningPositions
+    };
+  }
+
+  function triggerFreeSpins(scatterCount) {
+    const awarded = scatterCount === 3 ? 10 : (scatterCount === 4 ? 15 : 20);
+
+    mode = MODE_FS;
+    freeSpinsLeft = awarded;
+    freeSpinsTotal = awarded;
+    freeSpinsPlayed = 0;
+    totalFreeSpinsWin = 0;
+    freeSpinLevel = 1;
+    freeSpinMultiplier = LEVEL_MULTIPLIERS[0];
+    fishermenInLevel = 0;
+
+    sFsTrigger();
+    setStatus(`Free Spins triggered: ${awarded} spins awarded`, 'win');
+    updateHUD();
+  }
+
+  function stopAuto(message, type) {
+    autoMode = false;
+    autoSpinsRemaining = 0;
+    autoSpinsTotal = 0;
+    spinRequestedByAuto = false;
+    autoBtn.classList.remove('toggled');
+    autoDotEl.classList.remove('on');
+    if (message) {
+      setStatus(message, type || '');
+    }
+    updateHUD();
+  }
+
+  function spinOnce() {
+    if (spinning) return;
+
+    const wasAutoSpin = spinRequestedByAuto;
+    spinRequestedByAuto = false;
+
+    if (mode === MODE_BASE && balance < bet) {
+      if (wasAutoSpin && autoMode) {
+        stopAuto('Auto stopped (balance too low)', 'error');
+      } else {
+        setStatus('Insufficient balance', 'error');
+        updateHUD();
+      }
+      return;
+    }
+
+    spinning = true;
+    clearHighlights();
+    setStatus('Spinning…', '');
+    if (mode === MODE_BASE) {
+      balance -= bet;
+    }
+    updateHUD();
+
+    sSpin();
+
+    const delay = turbo ? 90 : 420;
+
+    reelElems.forEach(r => r.classList.add('spinning'));
+
+    setTimeout(() => {
+      const result = performSpin();
+      spinning = false;
+      
+      // Staggered reel stop (left → right)
+      reelElems.forEach((reel, i) => {
+        setTimeout(() => {
+          reel.classList.remove('spinning'); reel.classList.remove('anticipation');
+          reel.classList.add('stopping');
+          setTimeout(() => {
+            reel.classList.remove('stopping');
+            reel.classList.add('stopped');
+          }, 80);
+        }, i * (turbo ? 40 : 120));
+      });
+
+
+      sStop();
+
+      lastWin = result.totalWin;
+      if (result.totalWin >= bet * 20) {
+        const overlay = document.getElementById('bigwin-overlay');
+        const amountEl = document.getElementById('bigwin-amount');
+        overlay.classList.add('show');
+        let current = 0;
+        const target = result.totalWin;
+        const step = target / 30;
+        const interval = setInterval(() => {
+          current += step;
+          if (current >= target) {
+            current = target;
+            clearInterval(interval);
+            setTimeout(() => overlay.classList.remove('show'), 600);
+          }
+          amountEl.textContent = current.toFixed(2);
+        }, 30);
+      }
+
+      // Big win reel effects
+      if (result.totalWin >= bet * 10) {
+        const finalReel = reelElems[COLS - 1];
+        finalReel.classList.add('final-bounce');
+        setTimeout(() => finalReel.classList.remove('final-bounce'), 320);
+      }
+
+      if (result.winningPositions && result.winningPositions.length > 0) {
+        const winningReels = new Set(result.winningPositions.map(p => p.col));
+        winningReels.forEach(col => {
+          const r = reelElems[col];
+          r.classList.add('win-rail');
+          setTimeout(() => r.classList.remove('win-rail'), 900);
+        });
+      }
+
+      updateHUD();
+
+      if (mode === MODE_BASE) {
+        if (wasAutoSpin && autoMode && autoSpinsRemaining > 0) {
+          autoSpinsRemaining--;
+          if (autoSpinsRemaining <= 0) {
+            stopAuto('Auto complete', '');
+          }
+        }
+
+        if (result.totalWin > 0) {
+          sWin();
+          setStatus('Win ' + formatMoney(result.totalWin) + ' credits', 'win');
+        } else {
+          setStatus('No win', '');
+        }
+
+        if (result.scatterCount >= 3) {
+          triggerFreeSpins(result.scatterCount);
+          const gapFS = turbo ? 120 : 500;
+          setTimeout(spinOnce, gapFS);
+        } else if (autoMode && autoSpinsRemaining > 0 && balance >= bet) {
+          const gap = turbo ? 80 : 350;
+          spinRequestedByAuto = true;
+          setTimeout(spinOnce, gap);
+        } else if (autoMode && autoSpinsRemaining > 0 && balance < bet) {
+          stopAuto('Auto stopped (balance too low)', 'error');
+        }
+      } else if (mode === MODE_FS) {
+        freeSpinsLeft--;
+        freeSpinsPlayed++;
+        totalFreeSpinsWin += result.totalWin;
+
+        const levelUps = applyFishermenProgress(result.fishermen);
+
+        let msgParts = [`Free Spin ${freeSpinsPlayed}/${freeSpinsTotal}`];
+        if (result.totalWin > 0) {
+          sWin();
+          msgParts.push('win ' + formatMoney(result.totalWin));
+        } else {
+          msgParts.push('no win');
+        }
+        if (result.fsCollectWin > 0) {
+          msgParts.push('mole bonus ' + formatMoney(result.fsCollectWin));
+        }
+        if (result.fishermen > 0) {
+          msgParts.push('hammer hits ' + result.fishermen);
+        }
+        if (levelUps > 0) {
+          sFsLevelUp();
+          msgParts.push('LEVEL UP x' + freeSpinMultiplier);
+        }
+
+        setStatus(msgParts.join(' · '), result.totalWin > 0 ? 'win' : '');
+        updateHUD();
+
+        if (freeSpinsLeft > 0) {
+          const gap = turbo ? 120 : 500;
+          setTimeout(spinOnce, gap);
+        } else {
+          mode = MODE_BASE;
+          setStatus(
+            'Free Spins complete · total feature win ' + formatMoney(totalFreeSpinsWin),
+            totalFreeSpinsWin > 0 ? 'win' : ''
+          );
+          updateHUD();
+          if (autoMode && autoSpinsRemaining > 0 && balance >= bet) {
+            const gap = turbo ? 80 : 350;
+            spinRequestedByAuto = true;
+            setTimeout(spinOnce, gap);
+          }
+        }
+      }
+    }, delay);
+  }
+
+  function openAutoModal() {
+    if (spinning || mode === MODE_FS) return;
+    autoSelectedSpins = 0;
+    autoOptionButtons.forEach(btn => btn.classList.remove('selected'));
+    autoModal.classList.add('open');
+  }
+
+  function closeAutoModal() {
+    autoModal.classList.remove('open');
+  }
+
+  function openInfoModal() {
+    if (spinning) return;
+    infoModal.classList.add('open');
+  }
+
+  function closeInfoModal() {
+    infoModal.classList.remove('open');
+  }
+
+  autoOptionButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      sClick();
+      autoOptionButtons.forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      autoSelectedSpins = parseInt(btn.dataset.spins, 10) || 0;
+    });
+  });
+
+  autoCloseBtn.addEventListener('click', () => {
+    sClick();
+    closeAutoModal();
+  });
+  if (autoBackdrop) {
+    autoBackdrop.addEventListener('click', closeAutoModal);
+  }
+
+  if (infoBtn) {
+    infoBtn.addEventListener('click', () => {
+      sClick();
+      openInfoModal();
+    });
+  }
+  if (infoCloseBtn) {
+    infoCloseBtn.addEventListener('click', () => {
+      sClick();
+      closeInfoModal();
+    });
+  }
+  if (infoBackdrop) {
+    infoBackdrop.addEventListener('click', closeInfoModal);
+  }
+
+  autoStartBtn.addEventListener('click', () => {
+    sClick();
+    if (!autoSelectedSpins) {
+      setStatus('Select number of auto spins', 'error');
+      return;
+    }
+    if (balance < bet) {
+      setStatus('Cannot start auto – balance too low', 'error');
+      closeAutoModal();
+      return;
+    }
+    autoMode = true;
+    autoSpinsRemaining = autoSelectedSpins;
+    autoSpinsTotal = autoSelectedSpins;
+    autoBtn.classList.add('toggled');
+    autoDotEl.classList.add('on');
+    setStatus(`Auto play started: ${autoSpinsTotal} spins`, '');
+    closeAutoModal();
+    updateHUD();
+    if (!spinning && mode === MODE_BASE) {
+      spinRequestedByAuto = true;
+      spinOnce();
+    }
+  });
+
+  spinBtn.addEventListener('click', () => {
+    if (mode === MODE_FS) return;
+    const ctx = getAudioCtx();
+    if (ctx && ctx.state === 'suspended' && soundEnabled) {
+      ctx.resume();
+    }
+    if (autoMode) {
+      stopAuto('Auto play stopped', '');
+    }
+    spinRequestedByAuto = false;
+    spinOnce();
+  });
+
+  autoBtn.addEventListener('click', () => {
+    if (mode === MODE_FS) return;
+    if (autoMode) {
+      stopAuto('Auto play stopped', '');
+    } else {
+      openAutoModal();
+    }
+  });
+
+  turboBtn.addEventListener('click', () => {
+    turbo = !turbo;
+    turboBtn.classList.toggle('toggled', turbo);
+    setStatus(turbo ? 'Turbo mode ON' : 'Turbo mode OFF', '');
+  });
+
+  const MIN_BET = 0.20;
+  const MAX_BET = 20.00;
+  const BET_STEP = 0.20;
+
+  betDecBtn.addEventListener('click', () => {
+    if (spinning || mode === MODE_FS) return;
+    bet = Math.max(MIN_BET, bet - BET_STEP);
+    bet = Math.round(bet * 100) / 100;
+    updateHUD();
+  });
+
+  betIncBtn.addEventListener('click', () => {
+    if (spinning || mode === MODE_FS) return;
+    bet = Math.min(MAX_BET, bet + BET_STEP);
+    bet = Math.round(bet * 100) / 100;
+    updateHUD();
+  });
+
+  createReels();
+
+  (function initialPopulate() {
+    const grid = [];
+    for (let col = 0; col < COLS; col++) {
+      const reelStrip = REELS[col];
+      const len = reelStrip.length;
+      const start = randomInt(len);
+      const colSymbols = [];
+      for (let row = 0; row < ROWS; row++) {
+        const idx = (start + row) % len;
+        colSymbols[row] = reelStrip[idx];
+      }
+      grid[col] = colSymbols;
+    }
+    renderGrid(grid);
+  })();
+
+  updateHUD();
+  setStatus('Ready. Set your bet and whack the moles. 3+ Bonus Holes start Free Spins.', '');
+</script>
+</body>
+</html>
