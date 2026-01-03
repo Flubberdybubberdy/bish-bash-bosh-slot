@@ -443,30 +443,21 @@
     border-color 0.14s ease,
     background 0.14s ease;
 }
-.symbol::before {
+
+
+.symbol::after {
   content: "";
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(
-      ellipse at bottom center,
-      rgba(0,0,0,0.55) 0%,
-      rgba(0,0,0,0.35) 28%,
-      transparent 60%
-    );
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.08),
+    transparent 45%
+  );
   pointer-events: none;
 }
 
-
-    .symbol::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at top center, rgba(255, 255, 255, 0.15), transparent 60%);
-      opacity: 0.7;
-      pointer-events: none;
-      mix-blend-mode: screen;
-    }
+    
 
     .symbol-code {
       display: none;
@@ -1152,9 +1143,7 @@
   100% { transform: translateY(0); }
 }
 
-.symbol:not(.symbol-win) {
-  animation: idleFloat 4s ease-in-out infinite;
-}
+
 </style>
 
 
