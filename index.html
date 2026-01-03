@@ -1895,10 +1895,11 @@ cell.appendChild(img);
         const info = SYMBOL_INFO[symCode] || { name: symCode, group: 'low' };
 
         const codeSpan = cell.querySelector('.symbol-code');
-        const nameSpan = cell.querySelector('.symbol-name');
+if (codeSpan) codeSpan.textContent = symCode;
 
-        codeSpan.textContent = symCode;
-        nameSpan.textContent = info.name;
+const nameSpan = cell.querySelector('.symbol-name');
+if (nameSpan) nameSpan.textContent = info.name;
+
         cell.setAttribute('data-symbol', symCode);
 
         cell.classList.remove('symbol-low', 'symbol-high', 'symbol-scatter', 'symbol-win');
