@@ -432,7 +432,7 @@
   align-items: center;
   justify-content: center;
 
-  padding: 6px;
+  padding: 4px;
 
   position: relative;
   overflow: hidden;
@@ -494,31 +494,7 @@
 }
 
 
-    .symbol::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      background:
-        linear-gradient(
-          to bottom,
-          rgba(255,255,255,0.25),
-          rgba(255,255,255,0.04) 40%,
-          rgba(0,0,0,0.35)
-        );
-      pointer-events: none;
-    }
-
-    .symbol::after {
-      content: "";
-      position: absolute;
-      inset: 3px;
-      border-radius: inherit;
-      box-shadow:
-        inset 0 4px 10px rgba(255,255,255,0.15),
-        inset 0 -6px 14px rgba(0,0,0,0.45);
-      pointer-events: none;
-    }
+   
 .symbol-low {
       background: linear-gradient(135deg, #3b2f1a, #251714);
     }
@@ -1316,16 +1292,15 @@
 .symbol-art { display: none; }
 
 .symbol-img {
-  max-width: 82%;
-  max-height: 82%;
-  width: auto;
-  height: auto;
+  width: 92%;
+  height: 92%;
   object-fit: contain;
   pointer-events: none;
   filter:
     drop-shadow(0 6px 10px rgba(0,0,0,0.65))
     drop-shadow(0 0 12px rgba(255,200,80,0.25));
 }
+
 
 
 .symbol-win .symbol-img {
