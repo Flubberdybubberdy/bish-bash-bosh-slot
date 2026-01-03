@@ -1125,8 +1125,15 @@
   background:
     radial-gradient(circle at 30% 20%, #fff4b8, #facc15 35%, #78350f 80%);
   box-shadow:
-    0 0 22px rgba(250,204,21,0.8),
-    inset 0 0 18px rgba(255,255,255,0.35);
+    0 0 26px rgba(250,204,21,0.9),
+    inset 0 0 18px rgba(255,255,255,0.4);
+}
+
+.symbol[data-symbol="KM"] .symbol-img {
+  transform: scale(1.05);
+  filter:
+    drop-shadow(0 8px 16px rgba(0,0,0,0.75))
+    drop-shadow(0 0 28px rgba(250,204,21,0.8));
 }
 
 @keyframes winPulse {
