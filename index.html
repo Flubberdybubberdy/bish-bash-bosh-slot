@@ -1893,9 +1893,14 @@ function sAnticipation() { playTone(420, 0.35, 'triangle', 0.12); }
         codeSpan.className = 'symbol-code';
         codeSpan.textContent = '--';
 
-        cell.appendChild(art);
-        cell.appendChild(nameSpan);
-        cell.appendChild(codeSpan);
+        const img = document.createElement('img');
+img.className = 'symbol-img';
+img.src = '';
+img.alt = '';
+
+cell.appendChild(img);
+cell.appendChild(nameSpan);
+cell.appendChild(codeSpan);
 
         reel.appendChild(cell);
         colCells[row] = cell;
@@ -1922,6 +1927,12 @@ function sAnticipation() { playTone(420, 0.35, 'triangle', 0.12); }
 
         cell.classList.remove('symbol-low', 'symbol-high', 'symbol-scatter', 'symbol-win');
         cell.classList.add('symbol-' + (info.group || 'low'));
+        const img = cell.querySelector('.symbol-img');
+if (img) {
+  img.src = `assets/symbols/${symCode}.png`;
+  img.alt = info.name;
+}
+
       }
     }
   }
