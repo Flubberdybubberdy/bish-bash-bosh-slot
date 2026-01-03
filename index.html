@@ -1294,6 +1294,23 @@
   animation: lineSweep 0.35s ease-out;
   pointer-events: none;
 }
+<style>
+  
+  <style>
+/* ============================= */
+/* FINAL PNG SYMBOL MODE (FIX)   */
+/* ============================= */
+
+.symbol {
+  background: none !important;
+  box-shadow: none !important;
+}
+
+.symbol::before,
+.symbol::after {
+  display: none !important;
+}
+</style>
 
 /* Big win overlay */
 .bigwin-overlay {
