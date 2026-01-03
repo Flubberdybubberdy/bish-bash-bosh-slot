@@ -1909,13 +1909,7 @@ function sAnticipation() { playTone(420, 0.35, 'triangle', 0.12); }
           <div class="hammer-handle"></div>
         `;
 
-        const nameSpan = document.createElement('div');
-        nameSpan.className = 'symbol-name';
-        nameSpan.textContent = '—';
-
-        const codeSpan = document.createElement('div');
-        codeSpan.className = 'symbol-code';
-        codeSpan.textContent = '--';
+        
 
         const img = document.createElement('img');
 img.className = 'symbol-img';
@@ -1923,8 +1917,7 @@ img.src = '';
 img.alt = '';
 
 cell.appendChild(img);
-cell.appendChild(nameSpan);
-cell.appendChild(codeSpan);
+
 
         reel.appendChild(cell);
         colCells[row] = cell;
