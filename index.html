@@ -1888,31 +1888,35 @@ cell.appendChild(img);
   }
 
   function renderGrid(grid) {
-    for (let col = 0; col < COLS; col++) {
-      for (let row = 0; row < ROWS; row++) {
-        const symCode = grid[col][row];
-        const cell = cellGrid[col][row];
-        const info = SYMBOL_INFO[symCode] || { name: symCode, group: 'low' };
+  for (let col = 0; col < COLS; col++) {
+    for (let row = 0; row < ROWS; row++) {
 
-        const codeSpan = cell.querySelector('.symbol-code');
-if (codeSpan) codeSpan.textContent = symCode;
+      const symCode = grid[col][row];
+      const cell = cellGrid[col][row];
 
-const nameSpan = cell.querySelector('.symbol-name');
-if (nameSpan) nameSpan.textContent = info.name;
+      // safety check
+      if (!cell) continue;
 
-        cell.setAttribute('data-symbol', symCode);
+      // set symbol code on cell
+      cell.setAttribute('data-symbol', symCode);
 
-        cell.classList.remove('symbol-low', 'symbol-high', 'symbol-scatter', 'symbol-win');
-        cell.classList.add('symbol-' + (info.group || 'low'));
-        const img = cell.querySelector('.symbol-img');
-if (img) {
-  img.src = `assets/symbols/${symCode}.png`;
-  img.alt = info.name;
-}
+      // clear old symbol classes
+      cell.classList.remove(
+        'symbol-low',
+        'symbol-high',
+        'symbol-scatter',
+        'symbol-win'
+      );
 
+      // PNG IMAGE ONLY
+      const img = cell.querySelector('.symbol-img');
+      if (img) {
+        img.src = `assets/symbols/${symCode}.png`;
+        img.alt = symCode;
       }
     }
   }
+}
 
   function evaluateGridLines(grid) {
     let totalWin = 0;
