@@ -1872,15 +1872,23 @@ function sAnticipation() { playTone(420, 0.35, 'triangle', 0.12); }
 
         
 
-        const img = document.createElement('img');
+    // --- SYMBOL FRAME (WIN GLOW LIVES HERE) ---
+const frame = document.createElement('div');
+frame.className = 'symbol-frame';
+
+// --- SYMBOL IMAGE ---
+const img = document.createElement('img');
 img.className = 'symbol-img';
 img.src = '';
 img.alt = '';
 
+// IMPORTANT: frame FIRST, image SECOND
+cell.appendChild(frame);
 cell.appendChild(img);
 
+// Add the cell to the reel
+reel.appendChild(cell);
 
-        reel.appendChild(cell);
         colCells[row] = cell;
       }
 
