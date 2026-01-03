@@ -1287,24 +1287,23 @@
 .symbol-art { display: none; }
 
 .symbol-img {
-  width: 92%;
-  height: 92%;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   pointer-events: none;
 
-  /* TEMP PNG MASK */
-  background: radial-gradient(
-    circle,
-    rgba(0,0,0,0.35) 0%,
-    rgba(0,0,0,0.25) 55%,
-    transparent 70%
-  );
+  /* MASK WHITE PNG BACKGROUNDS */
+  mix-blend-mode: multiply;
 
-  border-radius: 14px;
+  /* Kill harsh edges */
+  background: transparent;
 
+  /* Premium depth */
   filter:
-    drop-shadow(0 6px 10px rgba(0,0,0,0.65))
-    drop-shadow(0 0 12px rgba(255,200,80,0.25));
+    drop-shadow(0 10px 18px rgba(0,0,0,0.75))
+    drop-shadow(0 0 16px rgba(255,200,80,0.35));
+
+  transform: scale(0.88);
 }
 
 
