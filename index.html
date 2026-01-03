@@ -472,13 +472,14 @@
     }
 
     
-    .symbol {
-      position: relative;
-      overflow: hidden;
-      box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,0.06),
-        0 10px 22px rgba(0,0,0,0.6);
-    }
+    .symbol-frame {
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.06),
+    0 10px 22px rgba(0,0,0,0.6);
+}
+
 
     .symbol::before {
       content: "";
@@ -1174,11 +1175,12 @@
   100% { transform: translateY(-120%); }
 }
 
-.reel.spinning .symbol {
+.reel.spinning .symbol-img {
   animation: reelSpin 0.35s linear infinite;
   filter: blur(1.2px);
   opacity: 0.85;
 }
+
 
 .reel.spinning::after {
   content: "";
@@ -1852,7 +1854,7 @@ function sAnticipation() { playTone(420, 0.35, 'triangle', 0.12); }
       const colCells = [];
       for (let row = 0; row < ROWS; row++) {
         const cell = document.createElement('div');
-        cell.className = 'symbol symbol-low';
+     cell.className = 'symbol symbol-low symbol-frame';
         cell.dataset.col = String(col);
         cell.dataset.row = String(row);
 
