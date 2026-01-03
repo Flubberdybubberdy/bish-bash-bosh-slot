@@ -1143,6 +1143,13 @@
   100% { transform: translateY(0); }
 }
 
+/* Subtle premium idle motion only */
+.reel:not(.spinning):not(.anticipation) 
+.symbol[data-symbol="KM"],
+.reel:not(.spinning):not(.anticipation) 
+.symbol[data-symbol="SCAT"] {
+  animation: idleFloat 5.5s ease-in-out infinite;
+}
 
 </style>
 
