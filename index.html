@@ -1295,9 +1295,7 @@
   pointer-events: none;
 }
 <style>
-  
-  <style>
-/* ============================= */
+  /* ============================= */
 /* FINAL PNG SYMBOL MODE (FIX)   */
 /* ============================= */
 
@@ -1310,7 +1308,30 @@
 .symbol::after {
   display: none !important;
 }
+
+/* Big win overlay */
+.bigwin-overlay {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, rgba(0,0,0,0.85), rgba(0,0,0,0.95));
+  z-index: 50;
+}
+
+.bigwin-overlay.show {
+  display: flex;
+}
+
+.bigwin-amount {
+  font-size: 48px;
+  font-weight: 900;
+  color: #facc15;
+  text-shadow: 0 0 30px rgba(250,204,21,0.9);
+}
 </style>
+
 
 /* Big win overlay */
 .bigwin-overlay {
