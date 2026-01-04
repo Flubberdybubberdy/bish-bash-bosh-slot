@@ -1310,24 +1310,7 @@
     border-radius: 10px;
   }
 
-  /* Global symbol scale */
-  .symbol-img {
-    transform: scale(0.90);
-  }
-
-  /* Scatter still reads bigger */
-  .symbol[data-symbol="SCAT"] .symbol-img {
-    transform: scale(0.95);
-  }
-
-  /* Letters slightly smaller */
-  .symbol[data-symbol="10"] .symbol-img,
-  .symbol[data-symbol="J"] .symbol-img,
-  .symbol[data-symbol="Q"] .symbol-img,
-  .symbol[data-symbol="K"] .symbol-img,
-  .symbol[data-symbol="A"] .symbol-img {
-    transform: scale(0.87);
-  }
+ 
 
   /* Reduce win glow thickness (prevents clutter) */
   .symbol-win {
@@ -1352,21 +1335,8 @@
     border-radius: 10px;
   }
 
-  .symbol-img {
-    transform: scale(0.92);
-  }
-
-  .symbol[data-symbol="SCAT"] .symbol-img {
-    transform: scale(0.96);
-  }
-
-  .symbol[data-symbol="10"] .symbol-img,
-  .symbol[data-symbol="J"] .symbol-img,
-  .symbol[data-symbol="Q"] .symbol-img,
-  .symbol[data-symbol="K"] .symbol-img,
-  .symbol[data-symbol="A"] .symbol-img {
-    transform: scale(0.88);
-  }
+  
+  
 
 /* Line win sweep */
 @keyframes lineSweep {
@@ -1407,7 +1377,7 @@
     drop-shadow(0 10px 18px rgba(0,0,0,0.75))
     drop-shadow(0 0 16px rgba(255,200,80,0.35));
 
-  transform: scale(0.88);
+ 
 }
 
 /* Extra punch on wins */
@@ -1418,19 +1388,8 @@
 }
 
 
-  /* MASK WHITE PNG BACKGROUNDS */
-  mix-blend-mode: multiply;
-
-  /* Kill harsh edges */
-  background: transparent;
-
-  /* Premium depth */
-  filter:
-    drop-shadow(0 10px 18px rgba(0,0,0,0.75))
-    drop-shadow(0 0 16px rgba(255,200,80,0.35));
-
-  transform: scale(0.88);
-}
+  
+  
 
 .symbol-img {
   width: 100%;
@@ -1442,24 +1401,9 @@
   filter:
     drop-shadow(0 10px 18px rgba(0,0,0,0.75))
     drop-shadow(0 0 16px rgba(255,200,80,0.35));
-  transform: scale(0.88);
 }
 
-/* STEP 3 — Symbol scale bias */
 
-/* SCATTER slightly larger */
-.symbol[data-symbol="SCAT"] .symbol-img {
-  transform: scale(0.92);
-}
-
-/* Letter symbols slightly smaller */
-.symbol[data-symbol="10"] .symbol-img,
-.symbol[data-symbol="J"] .symbol-img,
-.symbol[data-symbol="Q"] .symbol-img,
-.symbol[data-symbol="K"] .symbol-img,
-.symbol[data-symbol="A"] .symbol-img {
-  transform: scale(0.84);
-}
 /* ================================
    STEP 3 — FINAL SYMBOL SCALE BIAS
    (Global, last-write-wins)
@@ -1474,17 +1418,6 @@
 .symbol[data-symbol="SCAT"] .symbol-img {
   transform: scale(0.94);
 }
-
-/* Letter symbols slightly smaller */
-.symbol[data-symbol="10"] .symbol-img,
-.symbol[data-symbol="J"] .symbol-img,
-.symbol[data-symbol="Q"] .symbol-img,
-.symbol[data-symbol="K"] .symbol-img,
-.symbol[data-symbol="A"] .symbol-img {
-  transform: scale(0.86);
-}
-
-
 
 .symbol-win .symbol-img {
   filter:
