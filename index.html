@@ -1276,6 +1276,65 @@
     flex: 1;
   }
 }
+  /* === Mobile landscape reel tuning === */
+@media (orientation: landscape) and (max-height: 520px) {
+
+  /* Compress vertical space */
+  .game-shell {
+    padding-top: 6px;
+    gap: 8px;
+  }
+
+  .hud {
+    gap: 6px;
+  }
+
+  /* Reel area prioritised */
+  .reel-wrapper {
+    padding: 6px;
+  }
+
+  .reels {
+    gap: 4px;
+    padding: 2px 2px 4px;
+  }
+
+  .reel {
+    padding: 4px 3px;
+    border-radius: 14px;
+  }
+
+  /* Symbols slightly tighter */
+  .symbol {
+    padding: 1px;
+    border-radius: 10px;
+  }
+
+  /* Global symbol scale */
+  .symbol-img {
+    transform: scale(0.90);
+  }
+
+  /* Scatter still reads bigger */
+  .symbol[data-symbol="SCAT"] .symbol-img {
+    transform: scale(0.95);
+  }
+
+  /* Letters slightly smaller */
+  .symbol[data-symbol="10"] .symbol-img,
+  .symbol[data-symbol="J"] .symbol-img,
+  .symbol[data-symbol="Q"] .symbol-img,
+  .symbol[data-symbol="K"] .symbol-img,
+  .symbol[data-symbol="A"] .symbol-img {
+    transform: scale(0.87);
+  }
+
+  /* Reduce win glow thickness (prevents clutter) */
+  .symbol-win {
+    box-shadow: 0 0 14px rgba(250, 204, 21, 0.65);
+  }
+}
+
   /* --- Mobile portrait reel tuning --- */
 
   .reels {
