@@ -1460,6 +1460,29 @@
 .symbol[data-symbol="A"] .symbol-img {
   transform: scale(0.84);
 }
+/* ================================
+   STEP 3 — FINAL SYMBOL SCALE BIAS
+   (Global, last-write-wins)
+   ================================ */
+
+/* Base symbol scale */
+.symbol-img {
+  transform: scale(0.90);
+}
+
+/* SCATTER reads larger (industry standard) */
+.symbol[data-symbol="SCAT"] .symbol-img {
+  transform: scale(0.94);
+}
+
+/* Letter symbols slightly smaller */
+.symbol[data-symbol="10"] .symbol-img,
+.symbol[data-symbol="J"] .symbol-img,
+.symbol[data-symbol="Q"] .symbol-img,
+.symbol[data-symbol="K"] .symbol-img,
+.symbol[data-symbol="A"] .symbol-img {
+  transform: scale(0.86);
+}
 
 
 
