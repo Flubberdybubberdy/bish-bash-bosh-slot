@@ -1429,6 +1429,63 @@
     padding-top: 6px;
   }
 }
+/* === iPhone portrait reel & symbol correction === */
+@media (orientation: portrait) and (max-width: 430px) {
+
+  /* Reduce vertical waste above/below reels */
+  .hud {
+    margin-top: 2px;
+    gap: 6px;
+  }
+
+  .reel-wrapper {
+    padding: 6px;
+    margin-top: 4px;
+    flex: 1;
+  }
+
+  /* Tighter reel columns */
+  .reels {
+    gap: 4px;
+    padding: 2px 2px 6px;
+  }
+
+  .reel {
+    padding: 4px 3px;
+    border-radius: 14px;
+  }
+
+  /* Symbols: tighter frame, bigger art */
+  .symbol {
+    padding: 1px;
+    border-radius: 10px;
+  }
+
+  /* Base symbol scale — bigger on iPhone */
+  .symbol-img {
+    transform: scale(0.96);
+  }
+
+  /* Scatter must read clearly */
+  .symbol[data-symbol="SCAT"] .symbol-img {
+    transform: scale(1.02);
+  }
+
+  /* Letter symbols slightly smaller (optical balance) */
+  .symbol[data-symbol="10"] .symbol-img,
+  .symbol[data-symbol="J"]  .symbol-img,
+  .symbol[data-symbol="Q"]  .symbol-img,
+  .symbol[data-symbol="K"]  .symbol-img,
+  .symbol[data-symbol="A"]  .symbol-img {
+    transform: scale(0.90);
+  }
+
+  /* Reduce glow thickness to avoid blur soup */
+  .symbol-win {
+    box-shadow: 0 0 14px rgba(250, 204, 21, 0.6);
+  }
+
+}
 
 </style>
 
