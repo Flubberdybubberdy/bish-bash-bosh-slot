@@ -1414,6 +1414,22 @@
     padding-top: 6px;
   }
 }
+  /* === iPhone portrait hard lock === */
+@media (orientation: portrait) and (max-width: 430px) {
+
+  body {
+    background: #05070c;
+  }
+
+  .game-shell {
+    width: 100%;
+    max-width: 390px;   /* iPhone safe width */
+    height: 100svh;     /* Safari viewport fix */
+    margin: 0 auto;
+    padding-top: 6px;
+  }
+}
+
 </style>
 
 </head>
