@@ -1490,28 +1490,7 @@
 @media (orientation: portrait) and (max-width: 430px) {
 
   /* Lock reel wrapper height relative to viewport */
-  .reel-wrapper {
-    height: calc(100svh - 260px); /* header + controls budget */
-    max-height: 560px;
-    min-height: 480px;
-  }
-
-  /* Force reels to evenly divide space */
-  .reels {
-    height: 100%;
-  }
-
-  .reel {
-    flex: 1;
-    justify-content: space-between;
-  }
-
-  /* Hard clamp symbol cell height */
-  .symbol {
-    flex: none;
-    height: calc((100% - 12px) / 3); /* exact 3 rows */
-  }
-
+  
 }
 
 </style>
