@@ -5,6 +5,9 @@
   <title>BISH BASH BOSH – Whack-a-Mole</title>
  <style>
 
+</style>
+<style>
+
 /* =====================================================
    1) BASE / GLOBAL STYLES
    ===================================================== */
@@ -106,53 +109,6 @@ body {
 .hud-value.accent {
   color: var(--accent-strong);
 }
-/* ================= MOBILE / iPHONE REEL FIX ================= */
-
-@media (orientation: portrait) and (max-width: 430px) {
-
-  .game-shell {
-    height: 100svh;
-    padding-top: 6px;
-  }
-
-  .reel-wrapper {
-    flex: 0 0 auto;
-    padding: 6px;
-    margin-top: 6px;
-  }
-
-  .reels {
-    grid-template-columns: repeat(5, 1fr);
-    gap: 4px;
-  }
-
-  .reel {
-    padding: 4px 3px;
-    border-radius: 14px;
-  }
-
-  .symbol {
-    min-height: 0;
-    padding: 1px;
-    border-radius: 10px;
-  }
-
-  .symbol-img {
-    transform: scale(0.96);
-  }
-
-  .symbol[data-symbol="SCAT"] .symbol-img {
-    transform: scale(1.02);
-  }
-
-  .symbol[data-symbol="10"] .symbol-img,
-  .symbol[data-symbol="J"]  .symbol-img,
-  .symbol[data-symbol="Q"]  .symbol-img,
-  .symbol[data-symbol="K"]  .symbol-img,
-  .symbol[data-symbol="A"]  .symbol-img {
-    transform: scale(0.90);
-  }
-}
 
 /* ================= REELS ================= */
 
@@ -181,7 +137,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  position: relative;
 }
 
 .symbol {
@@ -266,21 +221,21 @@ body {
 }
 
 /* =====================================================
-   4) iPHONE PORTRAIT — FINAL, AUTHORITATIVE (LAST)
+   4) iPHONE PORTRAIT — FINAL & ONLY MOBILE OVERRIDE
    ===================================================== */
 
 @media (orientation: portrait) and (max-width: 430px) {
 
   .game-shell {
     max-width: 390px;
-    height: 100svh; /* Safari-safe */
+    height: 100svh;
     margin: 0 auto;
     padding-top: 6px;
   }
 
   .hud {
-    margin-top: 2px;
     gap: 6px;
+    margin-top: 2px;
   }
 
   .reel-wrapper {
@@ -304,7 +259,6 @@ body {
     border-radius: 10px;
   }
 
-  /* Bigger symbols on iPhone */
   .symbol-img {
     transform: scale(0.96);
   }
