@@ -106,6 +106,53 @@ body {
 .hud-value.accent {
   color: var(--accent-strong);
 }
+/* ================= MOBILE / iPHONE REEL FIX ================= */
+
+@media (orientation: portrait) and (max-width: 430px) {
+
+  .game-shell {
+    height: 100svh;
+    padding-top: 6px;
+  }
+
+  .reel-wrapper {
+    flex: 0 0 auto;
+    padding: 6px;
+    margin-top: 6px;
+  }
+
+  .reels {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+  }
+
+  .reel {
+    padding: 4px 3px;
+    border-radius: 14px;
+  }
+
+  .symbol {
+    min-height: 0;
+    padding: 1px;
+    border-radius: 10px;
+  }
+
+  .symbol-img {
+    transform: scale(0.96);
+  }
+
+  .symbol[data-symbol="SCAT"] .symbol-img {
+    transform: scale(1.02);
+  }
+
+  .symbol[data-symbol="10"] .symbol-img,
+  .symbol[data-symbol="J"]  .symbol-img,
+  .symbol[data-symbol="Q"]  .symbol-img,
+  .symbol[data-symbol="K"]  .symbol-img,
+  .symbol[data-symbol="A"]  .symbol-img {
+    transform: scale(0.90);
+  }
+}
 
 /* ================= REELS ================= */
 
