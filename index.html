@@ -194,6 +194,54 @@ body {
     transform: scale(0.9);
   }
 }
+   /* =====================================================
+   STEP 2 — SYMBOL FRAME & MOBILE STABILITY FIX
+   ===================================================== */
+
+/* Ensure symbol cell is the positioning context */
+.symbol {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Inner frame is the visual container */
+.symbol-frame {
+  position: absolute;
+  inset: 4%;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Image sits cleanly inside frame */
+.symbol-img {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Win glow applies to FRAME, not whole cell */
+.symbol-win .symbol-frame {
+  box-shadow: 0 0 18px rgba(250, 204, 21, 0.65);
+}
+
+/* Remove glow from the outer cell */
+.symbol-win {
+  box-shadow: none;
+}
+
+/* iOS Safari vertical centring fix */
+@media (orientation: portrait) and (max-width: 430px) {
+  body {
+    justify-content: flex-start;
+  }
+
+  .game-shell {
+    align-self: center;
+  }
+}
+
 </style>
 
 
