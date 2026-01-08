@@ -234,8 +234,92 @@ body {
 
 /* Remove glow from the outer cell */
 .symbol-win {
-  box-shadow: none;
+  box-shadow: none;/* =====================================================
+   STEP 3 — CABINET DEPTH & REEL POLISH
+   ===================================================== */
+
+/* Reel wrapper becomes a cabinet window */
+.reel-wrapper {
+  position: relative;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.06),
+    inset 0 18px 40px rgba(0,0,0,0.75),
+    0 30px 60px rgba(0,0,0,0.85);
 }
+
+/* Soft inner vignette */
+.reel-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255,255,255,0.04),
+    rgba(0,0,0,0.65)
+  );
+  z-index: 2;
+}
+
+/* Reels sit below vignette */
+.reels {
+  position: relative;
+  z-index: 1;
+}
+
+/* Individual reel depth */
+.reel {
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.05),
+    inset 0 -14px 28px rgba(0,0,0,0.65);
+}
+
+/* Symbol cell depth */
+.symbol {
+  background: radial-gradient(
+    ellipse at top,
+    rgba(255,255,255,0.06),
+    rgba(0,0,0,0.55)
+  );
+}
+
+/* Subtle idle lift */
+.symbol-img {
+  transition:
+    transform 160ms ease,
+    filter 160ms ease;
+}
+
+/* Win lift + brightness */
+.symbol-win .symbol-img {
+  transform: scale(1.05);
+  filter: brightness(1.15);
+}
+
+/* Reel win rail glow */
+.reel.win-rail {
+  box-shadow:
+    0 0 18px rgba(67,255,153,0.35),
+    inset 0 0 0 1px rgba(67,255,153,0.25);
+}
+
+/* Mobile density tuning */
+@media (orientation: portrait) and (max-width: 430px) {
+
+  .reel-wrapper {
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,0.05),
+      inset 0 12px 26px rgba(0,0,0,0.75),
+      0 18px 36px rgba(0,0,0,0.8);
+  }
+
+  .symbol-win .symbol-img {
+    transform: scale(1.03);
+  }
+}
+
+
    /* =====================================================
    PHASE 2 — SLOT CABINET VISUAL BALANCE
    Balanced reels + controls (desktop & mobile)
