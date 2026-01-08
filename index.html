@@ -104,7 +104,28 @@ body {
   flex-direction: column;
   gap: 6px;
 }
-.reel {
+/* ===============================
+   PHASE 5A — REEL INERTIA
+   =============================== */
+
+.reel.spinning {
+  animation: reel-spin 420ms cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+}
+
+.reel.stopping {
+  animation: reel-stop 180ms cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+
+@keyframes reel-spin {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-18px); }
+}
+
+@keyframes reel-stop {
+  0%   { transform: translateY(-18px); }
+  100% { transform: translateY(0); }
+}
+
 .symbol {
   flex: 1;
   display: flex;
@@ -115,6 +136,7 @@ body {
   border: 1px solid rgba(255,255,255,0.05);
   position: relative;
 }
+
 
 .symbol-img {
   width: 100%;
