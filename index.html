@@ -1210,15 +1210,21 @@ reel.appendChild(cell);
   }
 
   function highlightWinPositions(positions) {
-    const seen = new Set();
-    positions.forEach(pos => {
-      const key = pos.col + ':' + pos.row;
-      if (seen.has(key)) return;
-      seen.add(key);
-      const cell = cellGrid[pos.col][pos.row];
+  const seen = new Set();
+
+  positions.forEach((pos, i) => {
+    const key = pos.col + ':' + pos.row;
+    if (seen.has(key)) return;
+    seen.add(key);
+
+    const cell = cellGrid[pos.col][pos.row];
+
+    setTimeout(() => {
       cell.classList.add('symbol-win');
-    });
-  }
+    }, pos.col * 90);
+  });
+}
+
 
   function countScatters(grid) {
     let scatters = 0;
