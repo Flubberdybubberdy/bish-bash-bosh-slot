@@ -567,13 +567,6 @@ game-shell > header,
 }
 
 
-
-
-
-
-/* =====================================================
-   FINAL MOBILE HARD LOCK — SINGLE SOURCE OF TRUTH
-   ===================================================== */
 @media (max-width: 430px) {
 
   html,
@@ -604,16 +597,18 @@ game-shell > header,
     min-height: 0;
   }
 
-  /* Never allow text to push layout */
+  /* REMOVE TEXT FROM LAYOUT ENTIRELY */
   .status-bar,
   .help-text {
     display: none !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
   }
 }
+
 </style>
-
-
-
 
 
 
