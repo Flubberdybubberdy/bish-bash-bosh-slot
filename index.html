@@ -77,6 +77,11 @@ body {
   grid-template-columns: repeat(3, minmax(0,1fr));
   gap: 10px;
 }
+   
+/* HUD NEVER STEALS SPACE FROM REELS */
+.hud {
+  flex-shrink: 0;
+}
 
 /* ================= REELS ================= */
 
