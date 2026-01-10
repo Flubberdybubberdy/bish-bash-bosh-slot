@@ -564,16 +564,7 @@ body {
 
 
 /* MOBILE: HARD CLAMP CABINET */
-@media (max-width: 430px) {
-  .game-shell {
-    height: 100svh;
-    padding-bottom: 10px;
-  }
 
-  .status-bar,
-.help-text {
-  display: none !important;
-  }
 }
 /* =====================================================
    PHASE 4 — CABINET LOCK + SCROLL KILL (MOBILE)
@@ -613,6 +604,45 @@ body {
     display: none !important;
   }
 }
+/* =====================================================
+   FINAL MOBILE HARD LOCK — SINGLE SOURCE OF TRUTH
+   ===================================================== */
+@media (max-width: 430px) {
+
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    touch-action: manipulation;
+  }
+
+  body {
+    position: fixed;
+    width: 100%;
+    overscroll-behavior: none;
+  }
+
+  .game-shell {
+    height: 100svh;
+    max-height: 100svh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Reels always win space */
+  .reel-wrapper {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  /* Never allow text to push layout */
+  .status-bar,
+  .help-text {
+    display: none !important;
+  }
+
 
 </style>
 
