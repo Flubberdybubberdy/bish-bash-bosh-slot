@@ -405,7 +405,11 @@ body {
 .symbol {
   min-height: 0;
 }
-
+game-shell > header,
+.game-shell > .hud,
+.game-shell > .controls {
+  flex-shrink: 0;
+}
 /* --- CONTROLS ANCHORED & BALANCED --- */
 .controls {
   display: grid;
