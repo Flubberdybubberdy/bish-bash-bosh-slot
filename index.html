@@ -52,8 +52,7 @@ body {
 
 .game-shell {
   position: fixed;
-  inset: 0; /* TOP, RIGHT, BOTTOM, LEFT = 0 */
-  
+  inset: 0;
   width: 100%;
   height: 100svh;
 
@@ -61,11 +60,12 @@ body {
 
   display: flex;
   flex-direction: column;
-  gap: 12px;
+
+  /* 🔒 CRITICAL */
+  min-height: 0;
+  overflow: hidden;
 
   padding: 12px;
-
-  overflow: hidden; /* SLOT NEVER SCROLLS */
 }
 
 
