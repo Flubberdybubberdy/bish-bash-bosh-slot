@@ -406,6 +406,9 @@ body {
   grid-template-columns: 1fr 1.3fr 1fr;
   gap: 8px;
   padding-top: 4px;
+   flex-shrink: 0;   /* ✅ ADD */
+  margin-top: 8px;  /* ✅ ADD */
+}
 }
 
 .controls .btn {
@@ -505,8 +508,12 @@ body {
     rgba(0,0,0,0.4)
   );
   pointer-events: none;
+  z-index: 0; /* ✅ ADD */
 }
-
+.game-shell > * {
+  position: relative;
+  z-index: 1;
+}
 /* CABINET DROP SHADOW (mass) */
 .game-shell {
   box-shadow:
